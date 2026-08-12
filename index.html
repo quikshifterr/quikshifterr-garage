@@ -314,7 +314,7 @@ label {
   font-size: 16px;
 }
 
-/* Modal / Dropdown Menu for More */
+/* Modal / Dropdown Menu for More & Quick Actions Config */
 .more-menu-overlay {
   display: none;
   position: fixed;
@@ -341,7 +341,7 @@ label {
   background: #14171a;
   border: 1px solid #2a2e32;
   border-radius: 20px;
-  padding: 12px;
+  padding: 16px;
   z-index: 100;
   box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
 }
@@ -476,11 +476,12 @@ label {
       </div>
     </div>
     <div class="card">
-      <h2>Hızlı İşlem</h2>
-      <div class="row">
-        <button onclick="show('fuel')">⛽ Yakıt</button>
-        <button class="secondary" onclick="show('expenses')">💸 Masraf</button>
-        <button class="secondary" onclick="show('maintenance')">🔧 Bakım</button>
+      <div class="between" style="margin-bottom:10px;">
+        <h2 style="margin:0">Hızlı İşlem</h2>
+        <button class="secondary" style="padding:6px 10px; font-size:11px;" onclick="openQuickActionConfig()">⚙️ Düzenle</button>
+      </div>
+      <div class="row" id="quickActionsContainer">
+        <!-- Dynamic Quick Actions -->
       </div>
     </div>
   </section>
@@ -708,7 +709,7 @@ label {
   </nav>
 
   <!-- OVERLAY & MORE MENU -->
-  <div class="more-menu-overlay" id="moreOverlay" onclick="toggleMoreMenu()"></div>
+  <div class="more-menu-overlay" id="moreOverlay" onclick="closeAllModals()"></div>
   <div class="more-menu" id="moreMenu">
     <button class="more-menu-item" onclick="selectMoreNav('expenses')">
       <span>💸</span> <span>Masraflar</span>
@@ -720,11 +721,65 @@ label {
       <span>🏍️</span> <span>Motor Garajım</span>
     </button>
   </div>
+
+  <!-- QUICK ACTION CONFIG MODAL -->
+  <div class="more-menu" id="quickConfigMenu">
+    <h2>⚙️ Hızlı Menüyü Düzenle</h2>
+    <p style="font-size:12px; color:var(--muted); margin-bottom:12px;">Ana sayfada görüntülemek istediğiniz 3 hızlı kısayolu seçin:</p>
+    
+    <label>1. Buton</label>
+    <select id="qaSelect1">
+      <option value="fuel">⛽ Yakıt</option>
+      <option value="expenses">💸 Masraf</option>
+      <option value="maintenance">🔧 Bakım</option>
+      <option value="gps">📡 GPS Hız</option>
+      <option value="journey">🗺️ Yolculuk</option>
+      <option value="bike">🏍️ Motorum</option>
+    </select>
+
+    <label>2. Buton</label>
+    <select id="qaSelect2">
+      <option value="fuel">⛽ Yakıt</option>
+      <option value="expenses" selected>💸 Masraf</option>
+      <option value="maintenance">🔧 Bakım</option>
+      <option value="gps">📡 GPS Hız</option>
+      <option value="journey">🗺️ Yolculuk</option>
+      <option value="bike">🏍️ Motorum</option>
+    </select>
+
+    <label>3. Buton</label>
+    <select id="qaSelect3">
+      <option value="fuel">⛽ Yakıt</option>
+      <option value="expenses">💸 Masraf</option>
+      <option value="maintenance" selected>🔧 Bakım</option>
+      <option value="gps">📡 GPS Hız</option>
+      <option value="journey">🗺️ Yolculuk</option>
+      <option value="bike">🏍️ Motorum</option>
+    </select>
+
+    <div class="row" style="margin-top:14px;">
+      <button onclick="saveQuickActionConfig()" style="flex:1;">Kaydet</button>
+      <button class="secondary" onclick="closeAllModals()">İptal</button>
+    </div>
+  </div>
 </div>
 
 <script>
 const KEY = 'qsGarageV3';
-let data = JSON.parse(localStorage.getItem(KEY) || '{"bike":{},"fuel":[],"expenses":[],"maintenance":[],"maxSpeed":0}');
+const ALL_ACTIONS = {
+  'fuel': { label: '⛽ Yakıt', primary: true },
+  'expenses': { label: '💸 Masraf', primary: false },
+  'maintenance': { label: '🔧 Bakım', primary: false },
+  'gps': { label: '📡 GPS Hız', primary: false },
+  'journey': { label: '🗺️ Yolculuk', primary: false },
+  'bike': { label: '🏍️ Motorum', primary: false }
+};
+
+let data = JSON.parse(localStorage.getItem(KEY) || '{"bike":{},"fuel":[],"expenses":[],"maintenance":[],"maxSpeed":0,"quickActions":["fuel","expenses","maintenance"]}');
+
+if (!data.quickActions || data.quickActions.length < 3) {
+  data.quickActions = ["fuel", "expenses", "maintenance"];
+}
 
 function save() {
   localStorage.setItem(KEY, JSON.stringify(data));
@@ -735,21 +790,58 @@ function money(n) {
   return Number(n || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' TL';
 }
 
+function closeAllModals() {
+  document.getElementById('moreMenu').classList.remove('active');
+  document.getElementById('quickConfigMenu').classList.remove('active');
+  document.getElementById('moreOverlay').classList.remove('active');
+}
+
 function toggleMoreMenu() {
   const menu = document.getElementById('moreMenu');
   const overlay = document.getElementById('moreOverlay');
   const isActive = menu.classList.contains('active');
-  if (isActive) {
-    menu.classList.remove('active');
-    overlay.classList.remove('active');
-  } else {
+  closeAllModals();
+  if (!isActive) {
     menu.classList.add('active');
     overlay.classList.add('active');
   }
 }
 
+function openQuickActionConfig() {
+  closeAllModals();
+  document.getElementById('qaSelect1').value = data.quickActions[0] || 'fuel';
+  document.getElementById('qaSelect2').value = data.quickActions[1] || 'expenses';
+  document.getElementById('qaSelect3').value = data.quickActions[2] || 'maintenance';
+  document.getElementById('quickConfigMenu').classList.add('active');
+  document.getElementById('moreOverlay').classList.add('active');
+}
+
+function saveQuickActionConfig() {
+  const s1 = document.getElementById('qaSelect1').value;
+  const s2 = document.getElementById('qaSelect2').value;
+  const s3 = document.getElementById('qaSelect3').value;
+  data.quickActions = [s1, s2, s3];
+  save();
+  closeAllModals();
+}
+
+function renderQuickActions() {
+  const container = document.getElementById('quickActionsContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  data.quickActions.forEach((actKey, idx) => {
+    const item = ALL_ACTIONS[actKey] || ALL_ACTIONS['fuel'];
+    const btn = document.createElement('button');
+    btn.textContent = item.label;
+    if (idx !== 0) btn.classList.add('secondary');
+    btn.onclick = () => show(actKey);
+    container.appendChild(btn);
+  });
+}
+
 function selectMoreNav(id) {
-  toggleMoreMenu();
+  closeAllModals();
   show(id);
 }
 
@@ -847,7 +939,7 @@ function deleteMaintenance(i) {
 function resetApp() {
   if (!confirm('Tüm verileri silmek istediğinizden emin misiniz?')) return;
   localStorage.removeItem(KEY);
-  data = { "bike": {}, "fuel": [], "expenses": [], "maintenance": [], "maxSpeed": 0 };
+  data = { "bike": {}, "fuel": [], "expenses": [], "maintenance": [], "maxSpeed": 0, "quickActions": ["fuel", "expenses", "maintenance"] };
   save();
   location.reload();
 }
@@ -861,6 +953,7 @@ function saveMaxSpeed() {
 }
 
 function render() {
+  renderQuickActions();
   bikeName.textContent = data.bike.name || 'Motorunu ekle';
   bikeInfo.textContent = data.bike.name ? `${data.bike.year || ''} • ${(data.bike.km || 0).toLocaleString('tr-TR')} km${data.bike.plate ? ' • ' + data.bike.plate : ''}` : 'Marka/model ve kilometreni kaydet.';
   

@@ -1,4 +1,5 @@
-QUIKSHIFTERR Garage V8
+QUIKSHIFTERR Garage V9
+- Özelleştirilebilir Hızlı İşlem Menüsü (⚙️ Düzenle)
 - "QUİK" turuncu, "SHİFTERR" beyaz logo başlığı
 - GPS Anlık Hız Göstergesi, Ortalama Hız, Mesafe ve Süre Takibi
 - Maksimum Hız Rekoru Kaydı
