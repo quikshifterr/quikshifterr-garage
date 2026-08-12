@@ -1,82 +1,61 @@
 <!doctype html>
 <html lang="tr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111111">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111111"><link rel="manifest" href="manifest.json">
 <title>QUIKSHIFTERR Garage</title>
-<link rel="manifest" href="manifest.json">
 <style>
-*{box-sizing:border-box}body{margin:0;background:#0d0d0d;color:#f5f5f5;font-family:Arial,sans-serif}
-.app{max-width:520px;margin:auto;min-height:100vh;background:#151515;padding-bottom:85px}
-header{padding:24px 18px 14px;border-bottom:1px solid #292929;position:sticky;top:0;background:#151515;z-index:5}
-.brand{font-weight:900;font-size:22px;letter-spacing:.5px}.brand b{color:#f47b20}
-.subtitle{color:#999;font-size:12px;margin-top:5px}
-.page{display:none;padding:18px}.page.active{display:block}
-.card{background:#202020;border:1px solid #2e2e2e;border-radius:16px;padding:16px;margin-bottom:13px}
-.hero{background:linear-gradient(135deg,#292929,#171717);border-radius:18px;padding:20px;border:1px solid #383838}
-h1{font-size:25px;margin:0 0 5px}h2{font-size:17px;margin:0 0 13px}.muted{color:#999}
-.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:13px}
-.stat{background:#191919;border-radius:13px;padding:13px}.stat small{color:#999}.stat strong{display:block;font-size:20px;margin-top:5px}
-button{border:0;border-radius:11px;padding:12px 14px;background:#f47b20;color:#fff;font-weight:800;cursor:pointer}
-.secondary{background:#303030}.danger{background:#8d2929}.row{display:flex;gap:8px;align-items:center}.between{display:flex;justify-content:space-between;gap:10px}
-input,select{width:100%;padding:12px;background:#111;color:#fff;border:1px solid #383838;border-radius:10px;margin:6px 0 10px}
-label{font-size:12px;color:#aaa}.item{padding:12px 0;border-bottom:1px solid #303030}.item:last-child{border:0}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);background:#111;border-top:1px solid #303030;display:grid;grid-template-columns:repeat(5,1fr);padding:8px 5px env(safe-area-inset-bottom)}
-.nav button{background:transparent;color:#aaa;padding:9px 2px;font-size:10px}.nav button.active{color:#f47b20}.badge{font-size:11px;padding:5px 8px;border-radius:20px;background:#343434}.orange{color:#f47b20}.empty{color:#888;text-align:center;padding:20px 5px}
-</style>
-</head>
-<body>
-<div class="app">
+*{box-sizing:border-box}body{margin:0;background:#0d0d0d;color:#f5f5f5;font-family:Arial,sans-serif}.app{max-width:520px;margin:auto;min-height:100vh;background:#151515;padding-bottom:90px}
+header{padding:22px 18px 14px;border-bottom:1px solid #292929;position:sticky;top:0;background:#151515;z-index:5}.brand{font-weight:900;font-size:22px}.orange{color:#f47b20}.subtitle{color:#999;font-size:12px;margin-top:4px}
+.page{display:none;padding:18px}.page.active{display:block}.card,.hero{background:#202020;border:1px solid #303030;border-radius:16px;padding:16px;margin-bottom:13px}.hero{background:linear-gradient(135deg,#292929,#171717)}h1{font-size:25px;margin:4px 0}.muted{color:#999;font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}.stat{background:#191919;border-radius:12px;padding:12px}.stat small{color:#999}.stat strong{display:block;font-size:19px;margin-top:4px}
+button{border:0;border-radius:11px;padding:12px 14px;background:#f47b20;color:white;font-weight:800}button.secondary{background:#333}button.danger{background:#812d2d}.row{display:flex;gap:8px;flex-wrap:wrap}.between{display:flex;justify-content:space-between;align-items:center;gap:10px}
+input,select{width:100%;padding:12px;background:#111;color:white;border:1px solid #3a3a3a;border-radius:10px;margin:6px 0 10px}label{font-size:12px;color:#aaa}.item{padding:12px 0;border-bottom:1px solid #303030}.item:last-child{border:0}.badge{padding:5px 8px;border-radius:20px;background:#343434;font-size:11px}.warn{background:#7d551b}.good{background:#245a38}.empty{text-align:center;color:#888;padding:20px 4px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);background:#111;border-top:1px solid #303030;display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px env(safe-area-inset-bottom)}.nav button{background:transparent;color:#aaa;padding:8px 2px;font-size:10px}.nav button.active{color:#f47b20}
+.notice{font-size:12px;color:#bbb;background:#181818;border-left:3px solid #f47b20;padding:10px;border-radius:8px;margin-top:8px}
+</style></head>
+<body><div class="app">
 <header><div class="brand">QUIKSHIFT<span class="orange">ERR</span> <span style="font-size:12px;color:#888">GARAGE</span></div><div class="subtitle">Motor bakım • yakıt • masraf takip</div></header>
 
 <section id="home" class="page active">
 <div class="hero"><div class="muted">MOTOSİKLETİM</div><h1 id="bikeName">Motorunu ekle</h1><div id="bikeInfo" class="muted">Marka/model ve kilometreni kaydet.</div>
 <div class="stats"><div class="stat"><small>Bu ay</small><strong id="monthTotal">0 TL</strong></div><div class="stat"><small>Toplam gider</small><strong id="total">0 TL</strong></div></div></div>
 <div class="card"><div class="between"><h2>Yaklaşan Bakımlar</h2><button onclick="show('maintenance')">Tümü</button></div><div id="upcoming"></div></div>
-<div class="card"><h2>Hızlı İşlem</h2><div class="row"><button onclick="openModal('fuel')">⛽ Yakıt</button><button class="secondary" onclick="openModal('expense')">💸 Masraf</button><button class="secondary" onclick="openModal('service')">🔧 Bakım</button></div></div>
+<div class="card"><h2>Hızlı İşlem</h2><div class="row"><button onclick="show('fuel')">⛽ Yakıt</button><button class="secondary" onclick="show('expenses')">💸 Masraf</button><button class="secondary" onclick="show('maintenance')">🔧 Bakım</button></div></div>
 </section>
 
 <section id="fuel" class="page"><h2>⛽ Yakıt Takibi</h2><div class="card">
-<label>Tarih</label><input id="fDate" type="date"><label>KM</label><input id="fKm" type="number"><label>Litre</label><input id="fLiters" type="number" step=".01"><label>Tutar (TL)</label><input id="fCost" type="number" step=".01"><button onclick="addFuel()">Yakıtı Kaydet</button></div><div class="card"><div id="fuelList"></div></div></section>
+<label>Tarih</label><input id="fDate" type="date"><label>KM</label><input id="fKm" type="number"><label>Litre</label><input id="fLiters" type="number" step=".01"><label>Tutar (TL)</label><input id="fCost" type="number" step=".01"><button onclick="addFuel()">Yakıtı Kaydet</button>
+<div id="fuelCalc" class="notice">İki dolum kaydı girildiğinde L/100 km otomatik hesaplanır.</div></div><div class="card"><div id="fuelList"></div></div></section>
 
-<section id="maintenance" class="page"><h2>🔧 Bakım Planı</h2><div class="card"><label>Bakım / Parça</label><input id="mName" placeholder="Örn. Motor yağı"><label>Son bakım KM</label><input id="mKm" type="number"><label>Aralık KM</label><input id="mInterval" type="number"><button onclick="addMaintenance()">Bakım Ekle</button></div><div class="card"><div id="maintenanceList"></div></div></section>
+<section id="maintenance" class="page"><h2>🔧 Bakım & Hatırlatıcı</h2><div class="card">
+<label>Bakım / Parça</label><input id="mName" placeholder="Örn. Motor yağı"><label>Bakım tarihi</label><input id="mDate" type="date"><label>Bakım KM (opsiyonel)</label><input id="mKm" type="number"><label>Tekrarlama aralığı KM (opsiyonel)</label><input id="mInterval" type="number"><label>Hatırlatma (gün önce)</label><select id="mDays"><option value="7">7 gün önce</option><option value="3">3 gün önce</option><option value="1">1 gün önce</option><option value="0">Sadece bakım günü</option></select>
+<div class="row"><button onclick="requestNotifications()">🔔 Bildirimleri Aç</button><button class="secondary" onclick="addMaintenance()">Bakımı Kaydet</button></div>
+<div class="notice">iPhone'da bildirim için siteyi Ana Ekrana Eklemiş olman ve bildirim izni vermen gerekir. Tarayıcı kapalıyken zamanlanmış bildirim desteği, kullanılan iOS/WebKit sürümüne göre değişebilir.</div>
+</div><div class="card"><div id="maintenanceList"></div></div></section>
 
 <section id="expenses" class="page"><h2>💸 Masraflar</h2><div class="card"><label>Kategori</label><select id="eCat"><option>Bakım</option><option>Parça</option><option>Yakıt</option><option>Sigorta</option><option>Muayene</option><option>Ekipman</option><option>Diğer</option></select><label>Tutar</label><input id="eCost" type="number" step=".01"><label>Açıklama</label><input id="eNote" placeholder="Örn. Fren balatası"><button onclick="addExpense()">Masrafı Kaydet</button></div><div class="card"><div id="expenseList"></div></div></section>
 
 <section id="bike" class="page"><h2>🏍️ Motorum</h2><div class="card"><label>Marka / Model</label><input id="bName" placeholder="KTM Duke 250"><label>Model yılı</label><input id="bYear" type="number"><label>Güncel KM</label><input id="bKm" type="number"><label>Plaka (opsiyonel)</label><input id="bPlate"><button onclick="saveBike()">Motoru Kaydet</button></div><div class="card"><button class="danger" onclick="resetApp()">Tüm verileri sıfırla</button></div></section>
 
-<nav class="nav">
-<button onclick="show('home')" id="n-home" class="active">⌂<br>Ana Sayfa</button>
-<button onclick="show('fuel')" id="n-fuel">⛽<br>Yakıt</button>
-<button onclick="show('maintenance')" id="n-maintenance">🔧<br>Bakım</button>
-<button onclick="show('expenses')" id="n-expenses">💸<br>Masraf</button>
-<button onclick="show('bike')" id="n-bike">🏍️<br>Motorum</button>
-</nav>
+<nav class="nav"><button onclick="show('home')" id="n-home" class="active">⌂<br>Ana Sayfa</button><button onclick="show('fuel')" id="n-fuel">⛽<br>Yakıt</button><button onclick="show('maintenance')" id="n-maintenance">🔧<br>Bakım</button><button onclick="show('expenses')" id="n-expenses">💸<br>Masraf</button><button onclick="show('bike')" id="n-bike">🏍️<br>Motorum</button></nav>
 </div>
-
 <script>
-const KEY='qsGarageV1';
-let data=JSON.parse(localStorage.getItem(KEY)||'{"bike":{},"fuel":[],"expenses":[],"maintenance":[]}');
-function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
-function money(n){return Number(n||0).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})+' TL'}
+const KEY='qsGarageV3';let data=JSON.parse(localStorage.getItem(KEY)||'{"bike":{},"fuel":[],"expenses":[],"maintenance":[]}');
+function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}function money(n){return Number(n||0).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})+' TL'}
 function show(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));document.getElementById('n-'+id).classList.add('active');render()}
-function openModal(type){show(type==='fuel'?'fuel':type==='expense'?'expenses':'maintenance');}
-function saveBike(){data.bike={name:bName.value,year:bYear.value,km:Number(bKm.value||0),plate:bPlate.value};save();show('home')}
-function addFuel(){let liters=+fLiters.value,cost=+fCost.value,km=+fKm.value;if(!liters||!cost||!km)return alert('Lütfen litre, tutar ve KM gir.');data.fuel.unshift({date:fDate.value||new Date().toISOString().slice(0,10),km,liters,cost});data.expenses.unshift({cat:'Yakıt',cost,note:`${liters} L`,date:new Date().toISOString().slice(0,10)});data.bike.km=km;save();fLiters.value=fCost.value=fKm.value=''}
+function saveBike(){let name=bName.value.trim();if(!name)return alert('Marka / model gir.');data.bike={name,year:bYear.value,km:Number(bKm.value||0),plate:bPlate.value.trim()};save();show('home')}
+function addFuel(){let liters=+fLiters.value,cost=+fCost.value,km=+fKm.value;if(!liters||!cost||!km)return alert('Litre, tutar ve KM gir.');data.fuel.push({date:fDate.value||new Date().toISOString().slice(0,10),km,liters,cost});data.fuel.sort((a,b)=>a.km-b.km);data.expenses.unshift({cat:'Yakıt',cost,note:`${liters} L`,date:new Date().toISOString().slice(0,10)});data.bike.km=km;save();fLiters.value=fCost.value=fKm.value=''}
 function addExpense(){let cost=+eCost.value;if(!cost)return alert('Tutar gir.');data.expenses.unshift({cat:eCat.value,cost,note:eNote.value,date:new Date().toISOString().slice(0,10)});save();eCost.value=eNote.value=''}
-function addMaintenance(){let name=mName.value,km=+mKm.value,intv=+mInterval.value;if(!name||!km||!intv)return alert('Tüm alanları doldur.');data.maintenance.push({name,km,intv});save();mName.value=mKm.value=mInterval.value=''}
-function render(){
- bikeName.textContent=data.bike.name?data.bike.name:'Motorunu ekle';
- bikeInfo.textContent=data.bike.name?`${data.bike.year||''} • ${data.bike.km||0} km${data.bike.plate?' • '+data.bike.plate:''}`:'Marka/model ve kilometreni kaydet.';
- let total=data.expenses.reduce((a,x)=>a+Number(x.cost||0),0);let month=new Date().toISOString().slice(0,7);let mt=data.expenses.filter(x=>(x.date||'').slice(0,7)===month).reduce((a,x)=>a+Number(x.cost||0),0);
- document.getElementById('total').textContent=money(total);document.getElementById('monthTotal').textContent=money(mt);
- upcoming.innerHTML=data.maintenance.length?data.maintenance.slice(0,5).map(x=>{let next=x.km+x.intv,diff=next-(data.bike.km||0);return `<div class="item between"><span>🔧 ${x.name}<br><small class="muted">${next.toLocaleString('tr-TR')} km</small></span><span class="badge">${diff<=0?'BAKIM GEREKLİ':diff.toLocaleString('tr-TR')+' km'}</span></div>`}).join(''):'<div class="empty">Henüz bakım planı yok.</div>';
- fuelList.innerHTML=data.fuel.length?data.fuel.slice(0,30).map(x=>`<div class="item between"><span>⛽ ${x.liters} L • ${x.km.toLocaleString('tr-TR')} km<br><small class="muted">${x.date||''}</small></span><b>${money(x.cost)}</b></div>`).join(''):'<div class="empty">Yakıt kaydı yok.</div>';
- expenseList.innerHTML=data.expenses.length?data.expenses.slice(0,40).map(x=>`<div class="item between"><span>${x.cat}<br><small class="muted">${x.note||''} • ${x.date||''}</small></span><b>${money(x.cost)}</b></div>`).join(''):'<div class="empty">Masraf kaydı yok.</div>';
- maintenanceList.innerHTML=data.maintenance.length?data.maintenance.map(x=>{let next=x.km+x.intv,diff=next-(data.bike.km||0);return `<div class="item between"><span>🔧 ${x.name}<br><small class="muted">Son: ${x.km.toLocaleString('tr-TR')} km • Sonraki: ${next.toLocaleString('tr-TR')} km</small></span><span class="badge">${diff<=0?'⚠️ Gerekli':diff.toLocaleString('tr-TR')+' km'}</span></div>`}).join(''):'<div class="empty">Bakım planı yok.</div>';
-}
-function resetApp(){if(confirm('Tüm kayıtlar silinsin mi?')){localStorage.removeItem(KEY);location.reload()}}
-render();
-</script>
-</body></html>
+async function requestNotifications(){if(!('Notification' in window))return alert('Bu tarayıcı bildirim API desteği sunmuyor.');let p=await Notification.requestPermission();alert(p==='granted'?'Bildirim izni açıldı.':'Bildirim izni verilmedi.')}
+function addMaintenance(){let name=mName.value.trim(),date=mDate.value,km=+mKm.value||0,intv=+mInterval.value||0,days=+mDays.value;if(!name||!date)return alert('Bakım adı ve tarihini gir.');data.maintenance.push({name,date,km,intv,days,notified:false});save();mName.value=mDate.value=mKm.value=mInterval.value='';}
+function checkReminders(){let now=new Date();data.maintenance.forEach(x=>{let d=new Date(x.date+'T09:00:00'),rem=new Date(d);rem.setDate(rem.getDate()-(x.days||0));if(now>=rem&&now<=new Date(d.getTime()+86400000)){let key='qsNotify_'+x.date+'_'+x.name;if(!localStorage.getItem(key)&&'Notification'in window&&Notification.permission==='granted'){try{new Notification('QUIKSHIFTERR Garage',{body:`${x.name} için bakım zamanı yaklaşıyor.`})}catch(e){}localStorage.setItem(key,'1')}}});}
+function render(){bikeName.textContent=data.bike.name||'Motorunu ekle';bikeInfo.textContent=data.bike.name?`${data.bike.year||''} • ${(data.bike.km||0).toLocaleString('tr-TR')} km${data.bike.plate?' • '+data.bike.plate:''}`:'Marka/model ve kilometreni kaydet.';
+let total=data.expenses.reduce((a,x)=>a+Number(x.cost||0),0),month=new Date().toISOString().slice(0,7),mt=data.expenses.filter(x=>(x.date||'').slice(0,7)===month).reduce((a,x)=>a+Number(x.cost||0),0);document.getElementById('total').textContent=money(total);document.getElementById('monthTotal').textContent=money(mt);
+upcoming.innerHTML=data.maintenance.length?data.maintenance.slice(-5).reverse().map(x=>`<div class="item between"><span>🔧 ${x.name}<br><small class="muted">${x.date}${x.km?' • '+x.km.toLocaleString('tr-TR')+' km':''}</small></span><span class="badge">${x.date===new Date().toISOString().slice(0,10)?'BUGÜN':'PLANLI'}</span></div>`).join(''):'<div class="empty">Henüz bakım planı yok.</div>';
+fuelList.innerHTML=data.fuel.length?data.fuel.slice().sort((a,b)=>b.km-a.km).map((x,i,arr)=>{let prev=arr[i+1],cons=prev?x.liters/(x.km-prev.km)*100:0;return `<div class="item between"><span>⛽ ${x.liters} L • ${x.km.toLocaleString('tr-TR')} km<br><small class="muted">${x.date}</small>${cons?`<br><small class="orange">${cons.toFixed(2)} L/100 km</small>`:''}</span><b>${money(x.cost)}</b></div>`}).join(''):'<div class="empty">Yakıt kaydı yok.</div>';
+if(data.fuel.length>=2){let a=data.fuel.slice().sort((a,b)=>a.km-b.km),last=a[a.length-1],prev=a[a.length-2],cons=last.liters/(last.km-prev.km)*100;fuelCalc.innerHTML=`Son iki doluma göre tüketim: <b>${cons.toFixed(2)} L/100 km</b> • ${money(last.cost/last.liters)}/L`;}
+expenseList.innerHTML=data.expenses.length?data.expenses.slice(0,40).map(x=>`<div class="item between"><span>${x.cat}<br><small class="muted">${x.note||''} • ${x.date||''}</small></span><b>${money(x.cost)}</b></div>`).join(''):'<div class="empty">Masraf kaydı yok.</div>';
+maintenanceList.innerHTML=data.maintenance.length?data.maintenance.slice().reverse().map(x=>`<div class="item between"><span>🔧 ${x.name}<br><small class="muted">${x.date}${x.km?' • '+x.km.toLocaleString('tr-TR')+' km':''}${x.days!==undefined?' • '+x.days+' gün önce hatırlat':''}</small></span><span class="badge ${x.date<=new Date().toISOString().slice(0,10)?'warn':'good'}">${x.date<=new Date().toISOString().slice(0,10)?'KONTROL':'PLANLI'}</span></div>`).join(''):'<div class="empty">Bakım planı yok.</div>';checkReminders();}
+render();setInterval(checkReminders,60000);
+</script></body></html>
