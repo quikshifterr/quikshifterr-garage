@@ -42,14 +42,14 @@ input,select{background:#0c0e10;border:1px solid #30353a;border-radius:12px;colo
 <div class="hero"><div class="muted">MOTOSİKLETİM</div><h1 id="bikeName">Motorunu ekle</h1><div id="bikeInfo" class="muted">Marka/model ve kilometreni kaydet.</div>
 <div class="stats"><div class="stat"><small>Bu ay</small><strong id="monthTotal">0 TL</strong></div><div class="stat"><small>Toplam gider</small><strong id="total">0 TL</strong></div><div class="stat"><small>Ort. tüketim</small><strong id="avgConsumption">— L/100 km</strong></div></div></div>
 <div class="card"><div class="between"><h2>Yaklaşan Bakımlar</h2><button onclick="show('maintenance')">Tümü</button></div><div id="upcoming"></div></div>
-<div class="card"><h2>Hızlı İşlem</h2><div class="row"><button onclick="show('fuel')">⛽ Yakıt</button><button class="secondary" onclick="show('expenses')">💸 Masraf</button><button class="secondary" onclick="show('maintenance')">🔧 Bakım</button></div></div>
+<div class="card"><div class="between"><div><div class="muted">YENİ</div><h2 style="margin:4px 0">🗺️ Yolculuk & Masraf</h2><div class="muted">Şehir seç, yakıt ve yol maliyetini tahmin et.</div></div><button onclick="show('journey')">Aç</button></div></div><div class="card"><h2>Hızlı İşlem</h2><div class="row"><button onclick="show('fuel')">⛽ Yakıt</button><button class="secondary" onclick="show('expenses')">💸 Masraf</button><button class="secondary" onclick="show('maintenance')">🔧 Bakım</button></div></div>
 </section>
 
 <section id="fuel" class="page"><h2>⛽ Yakıt Takibi</h2><div class="card">
 <label>Tarih</label><input id="fDate" type="date"><label>KM</label><input id="fKm" type="number"><label>Litre</label><input id="fLiters" type="number" step=".01"><label>Tutar (TL)</label><input id="fCost" type="number" step=".01"><button onclick="addFuel()">Yakıtı Kaydet</button>
 <div id="fuelCalc" class="notice">En az iki yakıt kaydı gir. Uygulama son iki dolumu ve tüm kayıtlar üzerinden ortalama L/100 km tüketimini otomatik hesaplar.</div></div><div class="card"><div id="fuelList"></div></div></section>
 
-<section id="maintenance" class="page"><h2>🔧 Bakım & Hatırlatıcı</h2><div class="card">
+<section id="maintenance" class="page"><div class="between"><h2>🔧 Bakım & Hatırlatıcı</h2><button class="secondary" onclick="resetMaintenanceReminders()">↻ Sıfırla</button></div><div class="card">
 <label>Bakım / Parça</label><input id="mName" placeholder="Örn. Motor yağı"><label>Bakım tarihi</label><input id="mDate" type="date"><label>Bakım KM (opsiyonel)</label><input id="mKm" type="number"><label>Tekrarlama aralığı KM (opsiyonel)</label><input id="mInterval" type="number"><label>Hatırlatma (gün önce)</label><select id="mDays"><option value="7">7 gün önce</option><option value="3">3 gün önce</option><option value="1">1 gün önce</option><option value="0">Sadece bakım günü</option></select>
 <div class="row"><button onclick="requestNotifications()">🔔 Bildirimleri Aç</button><button class="secondary" onclick="addMaintenance()">Bakımı Kaydet</button></div>
 <div class="notice">iPhone'da bildirim için siteyi Ana Ekrana Eklemiş olman ve bildirim izni vermen gerekir. Tarayıcı kapalıyken zamanlanmış bildirim desteği, kullanılan iOS/WebKit sürümüne göre değişebilir.</div>
@@ -59,38 +59,7 @@ input,select{background:#0c0e10;border:1px solid #30353a;border-radius:12px;colo
 
 <section id="bike" class="page"><h2>🏍️ Motorum</h2><div class="card"><label>Marka / Model</label><input id="bName" placeholder="KTM Duke 250"><label>Model yılı</label><input id="bYear" type="number"><label>Güncel KM</label><input id="bKm" type="number"><label>Plaka (opsiyonel)</label><input id="bPlate"><button onclick="saveBike()">Motoru Kaydet</button></div><div class="card"><button class="danger" onclick="resetApp()">Tüm verileri sıfırla</button></div></section>
 
-<nav class="nav"><button onclick="show('home')" id="n-home" class="active">⌂<br>Ana Sayfa</button><button onclick="show('fuel')" id="n-fuel">⛽<br>Yakıt</button><button onclick="show('maintenance')" id="n-maintenance">🔧<br>Bakım</button><button onclick="show('expenses')" id="n-expenses">💸<br>Masraf</button><button onclick="show('bike')" id="n-bike">🏍️<br>Motorum</button></nav>
-</div>
-<script>
-const KEY='qsGarageV3';let data=JSON.parse(localStorage.getItem(KEY)||'{"bike":{},"fuel":[],"expenses":[],"maintenance":[]}');
-function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}function money(n){return Number(n||0).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})+' TL'}
-function show(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));document.getElementById('n-'+id).classList.add('active');render()}
-function saveBike(){let name=bName.value.trim();if(!name)return alert('Marka / model gir.');data.bike={name,year:bYear.value,km:Number(bKm.value||0),plate:bPlate.value.trim()};save();show('home')}
-function addFuel(){let liters=+fLiters.value,cost=+fCost.value,km=+fKm.value;if(!liters||!cost||!km)return alert('Litre, tutar ve KM gir.');data.fuel.push({date:fDate.value||new Date().toISOString().slice(0,10),km,liters,cost});data.fuel.sort((a,b)=>a.km-b.km);data.expenses.unshift({cat:'Yakıt',cost,note:`${liters} L`,date:new Date().toISOString().slice(0,10)});data.bike.km=km;save();fLiters.value=fCost.value=fKm.value=''}
-function addExpense(){let cost=+eCost.value;if(!cost)return alert('Tutar gir.');data.expenses.unshift({cat:eCat.value,cost,note:eNote.value,date:new Date().toISOString().slice(0,10)});save();eCost.value=eNote.value=''}
-async function requestNotifications(){if(!('Notification' in window))return alert('Bu tarayıcı bildirim API desteği sunmuyor.');let p=await Notification.requestPermission();alert(p==='granted'?'Bildirim izni açıldı.':'Bildirim izni verilmedi.')}
-function addMaintenance(){let name=mName.value.trim(),date=mDate.value,km=+mKm.value||0,intv=+mInterval.value||0,days=+mDays.value;if(!name||!date)return alert('Bakım adı ve tarihini gir.');data.maintenance.push({name,date,km,intv,days,notified:false});save();mName.value=mDate.value=mKm.value=mInterval.value='';}
-function checkReminders(){let now=new Date();data.maintenance.forEach(x=>{let d=new Date(x.date+'T09:00:00'),rem=new Date(d);rem.setDate(rem.getDate()-(x.days||0));if(now>=rem&&now<=new Date(d.getTime()+86400000)){let key='qsNotify_'+x.date+'_'+x.name;if(!localStorage.getItem(key)&&'Notification'in window&&Notification.permission==='granted'){try{new Notification('QUIKSHIFTERR Garage',{body:`${x.name} için bakım zamanı yaklaşıyor.`})}catch(e){}localStorage.setItem(key,'1')}}});}
-function render(){bikeName.textContent=data.bike.name||'Motorunu ekle';bikeInfo.textContent=data.bike.name?`${data.bike.year||''} • ${(data.bike.km||0).toLocaleString('tr-TR')} km${data.bike.plate?' • '+data.bike.plate:''}`:'Marka/model ve kilometreni kaydet.';
-let total=data.expenses.reduce((a,x)=>a+Number(x.cost||0),0),month=new Date().toISOString().slice(0,7),mt=data.expenses.filter(x=>(x.date||'').slice(0,7)===month).reduce((a,x)=>a+Number(x.cost||0),0);document.getElementById('total').textContent=money(total);document.getElementById('monthTotal').textContent=money(mt);
-upcoming.innerHTML=data.maintenance.length?data.maintenance.slice(-5).reverse().map(x=>`<div class="item between"><span>🔧 ${x.name}<br><small class="muted">${x.date}${x.km?' • '+x.km.toLocaleString('tr-TR')+' km':''}</small></span><span class="badge">${x.date===new Date().toISOString().slice(0,10)?'BUGÜN':'PLANLI'}</span></div>`).join(''):'<div class="empty">Henüz bakım planı yok.</div>';
-fuelList.innerHTML=data.fuel.length?data.fuel.slice().sort((a,b)=>b.km-a.km).map((x,i,arr)=>{let prev=arr[i+1],cons=prev?x.liters/(x.km-prev.km)*100:0;return `<div class="item between"><span>⛽ ${x.liters} L • ${x.km.toLocaleString('tr-TR')} km<br><small class="muted">${x.date}</small>${cons?`<br><small class="orange">${cons.toFixed(2)} L/100 km</small>`:''}</span><b>${money(x.cost)}</b></div>`}).join(''):'<div class="empty">Yakıt kaydı yok.</div>';
-if(data.fuel.length>=2){
-let a=data.fuel.slice().sort((a,b)=>a.km-b.km), last=a[a.length-1], prev=a[a.length-2];
-let cons=last.liters/(last.km-prev.km)*100;
-let totalLiters=0,totalKm=0;
-for(let i=1;i<a.length;i++){let km=a[i].km-a[i-1].km;if(km>0){totalKm+=km;totalLiters+=a[i].liters;}}
-let avg=totalKm>0?(totalLiters/totalKm)*100:0;
-document.getElementById('avgConsumption').textContent=avg?avg.toFixed(2)+' L/100 km':'— L/100 km';
-fuelCalc.innerHTML=`Son iki doluma göre: <b>${cons.toFixed(2)} L/100 km</b><br>Ortalama tüketim: <b>${avg.toFixed(2)} L/100 km</b> • Son litre fiyatı: ${money(last.cost/last.liters)}/L`;
-} else {
-document.getElementById('avgConsumption').textContent='— L/100 km';
-}
-expenseList.innerHTML=data.expenses.length?data.expenses.slice(0,40).map(x=>`<div class="item between"><span>${x.cat}<br><small class="muted">${x.note||''} • ${x.date||''}</small></span><b>${money(x.cost)}</b></div>`).join(''):'<div class="empty">Masraf kaydı yok.</div>';
-maintenanceList.innerHTML=data.maintenance.length?data.maintenance.slice().reverse().map(x=>`<div class="item between"><span>🔧 ${x.name}<br><small class="muted">${x.date}${x.km?' • '+x.km.toLocaleString('tr-TR')+' km':''}${x.days!==undefined?' • '+x.days+' gün önce hatırlat':''}</small></span><span class="badge ${x.date<=new Date().toISOString().slice(0,10)?'warn':'good'}">${x.date<=new Date().toISOString().slice(0,10)?'KONTROL':'PLANLI'}</span></div>`).join(''):'<div class="empty">Bakım planı yok.</div>';checkReminders();}
-render();setInterval(checkReminders,60000);
-</script>
-<section id="journeySection" class="card" style="margin-top:16px">
+<section id="journey" class="card" style="margin-top:16px">
   <div class="premium-title"><span class="dot"></span><h2 style="margin:0">Yolculuk & Masraf</h2></div>
   <p style="opacity:.75">Rotanı seç. Yakıt ve yol maliyetini tek ekranda tahmin et.</p>
   <div class="grid">
@@ -118,6 +87,68 @@ render();setInterval(checkReminders,60000);
     Şehirleri girip Hesapla'ya bas.
   </div>
 </section>
+<nav class="nav"><button onclick="show('home')" id="n-home" class="active">⌂<br>Ana Sayfa</button><button onclick="show('fuel')" id="n-fuel">⛽<br>Yakıt</button><button onclick="show('maintenance')" id="n-maintenance">🔧<br>Bakım</button><button onclick="show('expenses')" id="n-expenses">💸<br>Masraf</button><button onclick="show('bike')" id="n-bike">🏍️<br>Motorum</button><button onclick="show('journey')" id="n-journey">🗺️<br>Yolculuk</button></nav>
+</div>
+<script>
+const KEY='qsGarageV3';let data=JSON.parse(localStorage.getItem(KEY)||'{"bike":{},"fuel":[],"expenses":[],"maintenance":[]}');
+function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}function money(n){return Number(n||0).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})+' TL'}
+function show(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));document.getElementById('n-'+id).classList.add('active');render()}
+function saveBike(){let name=bName.value.trim();if(!name)return alert('Marka / model gir.');data.bike={name,year:bYear.value,km:Number(bKm.value||0),plate:bPlate.value.trim()};save();show('home')}
+function addFuel(){let liters=+fLiters.value,cost=+fCost.value,km=+fKm.value;if(!liters||!cost||!km)return alert('Litre, tutar ve KM gir.');data.fuel.push({date:fDate.value||new Date().toISOString().slice(0,10),km,liters,cost});data.fuel.sort((a,b)=>a.km-b.km);data.expenses.unshift({cat:'Yakıt',cost,note:`${liters} L`,date:new Date().toISOString().slice(0,10)});data.bike.km=km;save();fLiters.value=fCost.value=fKm.value=''}
+function addExpense(){let cost=+eCost.value;if(!cost)return alert('Tutar gir.');data.expenses.unshift({cat:eCat.value,cost,note:eNote.value,date:new Date().toISOString().slice(0,10)});save();eCost.value=eNote.value=''}
+async function requestNotifications(){if(!('Notification' in window))return alert('Bu tarayıcı bildirim API desteği sunmuyor.');let p=await Notification.requestPermission();alert(p==='granted'?'Bildirim izni açıldı.':'Bildirim izni verilmedi.')}
+function addMaintenance(){let name=mName.value.trim(),date=mDate.value,km=+mKm.value||0,intv=+mInterval.value||0,days=+mDays.value;if(!name||!date)return alert('Bakım adı ve tarihini gir.');data.maintenance.push({name,date,km,intv,days,notified:false});save();mName.value=mDate.value=mKm.value=mInterval.value='';}
+function checkReminders(){let now=new Date();data.maintenance.forEach(x=>{let d=new Date(x.date+'T09:00:00'),rem=new Date(d);rem.setDate(rem.getDate()-(x.days||0));if(now>=rem&&now<=new Date(d.getTime()+86400000)){let key='qsNotify_'+x.date+'_'+x.name;if(!localStorage.getItem(key)&&'Notification'in window&&Notification.permission==='granted'){try{new Notification('QUIKSHIFTERR Garage',{body:`${x.name} için bakım zamanı yaklaşıyor.`})}catch(e){}localStorage.setItem(key,'1')}}});}
+
+function resetOneMaintenance(i){
+ const x=data.maintenance[i]; if(!x)return;
+ localStorage.removeItem('qsNotify_'+x.date+'_'+x.name);
+ x.notified=false; save();
+}
+function resetMaintenanceReminders(){
+ data.maintenance.forEach(x=>{
+   localStorage.removeItem('qsNotify_'+x.date+'_'+x.name);
+   x.notified=false;
+ });
+ save();
+ alert('Tüm bakım hatırlatmaları sıfırlandı.');
+}
+function deleteMaintenance(i){
+ if(!confirm('Bu bakım kaydı silinsin mi?')) return;
+ data.maintenance.splice(i,1); save();
+}
+
+function render(){bikeName.textContent=data.bike.name||'Motorunu ekle';bikeInfo.textContent=data.bike.name?`${data.bike.year||''} • ${(data.bike.km||0).toLocaleString('tr-TR')} km${data.bike.plate?' • '+data.bike.plate:''}`:'Marka/model ve kilometreni kaydet.';
+let total=data.expenses.reduce((a,x)=>a+Number(x.cost||0),0),month=new Date().toISOString().slice(0,7),mt=data.expenses.filter(x=>(x.date||'').slice(0,7)===month).reduce((a,x)=>a+Number(x.cost||0),0);document.getElementById('total').textContent=money(total);document.getElementById('monthTotal').textContent=money(mt);
+upcoming.innerHTML=data.maintenance.length?data.maintenance.slice(-5).reverse().map(x=>`<div class="item between"><span>🔧 ${x.name}<br><small class="muted">${x.date}${x.km?' • '+x.km.toLocaleString('tr-TR')+' km':''}</small></span><span class="badge">${x.date===new Date().toISOString().slice(0,10)?'BUGÜN':'PLANLI'}</span></div>`).join(''):'<div class="empty">Henüz bakım planı yok.</div>';
+fuelList.innerHTML=data.fuel.length?data.fuel.slice().sort((a,b)=>b.km-a.km).map((x,i,arr)=>{let prev=arr[i+1],cons=prev?x.liters/(x.km-prev.km)*100:0;return `<div class="item between"><span>⛽ ${x.liters} L • ${x.km.toLocaleString('tr-TR')} km<br><small class="muted">${x.date}</small>${cons?`<br><small class="orange">${cons.toFixed(2)} L/100 km</small>`:''}</span><b>${money(x.cost)}</b></div>`}).join(''):'<div class="empty">Yakıt kaydı yok.</div>';
+if(data.fuel.length>=2){
+let a=data.fuel.slice().sort((a,b)=>a.km-b.km), last=a[a.length-1], prev=a[a.length-2];
+let cons=last.liters/(last.km-prev.km)*100;
+let totalLiters=0,totalKm=0;
+for(let i=1;i<a.length;i++){let km=a[i].km-a[i-1].km;if(km>0){totalKm+=km;totalLiters+=a[i].liters;}}
+let avg=totalKm>0?(totalLiters/totalKm)*100:0;
+document.getElementById('avgConsumption').textContent=avg?avg.toFixed(2)+' L/100 km':'— L/100 km';
+fuelCalc.innerHTML=`Son iki doluma göre: <b>${cons.toFixed(2)} L/100 km</b><br>Ortalama tüketim: <b>${avg.toFixed(2)} L/100 km</b> • Son litre fiyatı: ${money(last.cost/last.liters)}/L`;
+} else {
+document.getElementById('avgConsumption').textContent='— L/100 km';
+}
+expenseList.innerHTML=data.expenses.length?data.expenses.slice(0,40).map(x=>`<div class="item between"><span>${x.cat}<br><small class="muted">${x.note||''} • ${x.date||''}</small></span><b>${money(x.cost)}</b></div>`).join(''):'<div class="empty">Masraf kaydı yok.</div>';
+maintenanceList.innerHTML=data.maintenance.length?data.maintenance.slice().reverse().map((x,idx)=>{
+ let realIndex=data.maintenance.length-1-idx;
+ let due=x.date<=new Date().toISOString().slice(0,10);
+ return `<div class="item">
+  <div class="between"><span>🔧 ${x.name}<br><small class="muted">${x.date}${x.km?' • '+x.km.toLocaleString('tr-TR')+' km':''}${x.days!==undefined?' • '+x.days+' gün önce hatırlat':''}</small></span>
+  <span class="badge ${due?'warn':'good'}">${due?'KONTROL':'PLANLI'}</span></div>
+  <div class="row" style="margin-top:9px">
+   <button class="secondary" onclick="resetOneMaintenance(${realIndex})">↻ Hatırlatmayı sıfırla</button>
+   <button class="danger" onclick="deleteMaintenance(${realIndex})">Sil</button>
+  </div>
+ </div>`;
+}).join(''):'<div class="empty">Bakım planı yok.</div>';checkReminders();}
+render();setInterval(checkReminders,60000);
+</script>
+
 
 <script>
 const cityCoords = {

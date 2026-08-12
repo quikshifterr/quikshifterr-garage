@@ -1,7 +1,10 @@
-QUIKSHIFTERR Garage V6
+QUIKSHIFTERR Garage V7
 - Premium siyah/turuncu arayüz
-- Şehir seçimi için otomatik dropdown
+- Ayrı Yolculuk & Masraf kategorisi
+- Şehir seçimi
 - Yakıt ve ortalama tüketim
-- Bakım planı ve bildirim altyapısı
-- Yolculuk & masraf tahmini
+- Bakım planı
+- Tek bakım hatırlatıcısını sıfırlama
+- Tüm bakım hatırlatıcılarını sıfırlama
+- Bakım kaydı silme
 © 2026 QUIKSHIFTERR
