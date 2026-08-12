@@ -1,8 +1,10 @@
-QUIKSHIFTERR Garage V3
+QUIKSHIFTERR Garage V5
 - Motor profili
-- Yakıt ve otomatik L/100 km hesabı
-- Masraf takibi
-- Tarih/KM bakım planı
-- Bildirim izni altyapısı
-Not: iOS'ta gerçek zamanlı/scheduled web bildirimleri sürüm ve PWA koşullarına bağlıdır.
+- Yakıt takibi ve ortalama L/100 km
+- Bakım planı
+- Yolculuk & Masraf Hesapla
+- Şehirden şehre yaklaşık mesafe
+- Yakıt maliyeti
+- Ücretli yol için tahmini geçiş maliyeti
+Not: Canlı rota ve resmi geçiş ücretleri için sonraki sürümde harita/routing ve resmi tarife API entegrasyonu yapılabilir.
 © 2026 QUIKSHIFTERR
