@@ -3,8 +3,8 @@
   "short_name": "QS Garage",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#151515",
-  "theme_color": "#111111",
+  "background_color": "#08090a",
+  "theme_color": "#ff6a00",
   "lang": "tr",
-  "description": "Motosiklet bakım, yakıt, masraf ve yolculuk takip uygulaması."
+  "description": "Premium motosiklet bakım, yakıt, masraf ve yolculuk takip uygulaması."
 }
