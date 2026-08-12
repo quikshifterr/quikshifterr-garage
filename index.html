@@ -800,13 +800,6 @@ async function geocode(query) {
   return (json.features && json.features.length > 0) ? json.features[0].center : null;
 }
 
-/*
-  Mapbox route sonucu gerçek mesafe/süreyi verir.
-  Mapbox Directions cevabı ücretli yol ücretini standart olarak TL cinsinden vermediği için
-  burada şehirler arası motosiklet için tahmini ücretli yol modeli kullanılır.
-  Kullanıcının gerçek rotasında ücretli yol yoksa 0 TL gösterilir; ana otoyol koridorlarında
-  muhafazakâr bir tahmin uygulanır.
-*/
 const TOLL_CORRIDORS = [
   ["İstanbul","Ankara",220],["Ankara","İstanbul",220],
   ["İstanbul","İzmir",360],["İzmir","İstanbul",360],
@@ -824,8 +817,6 @@ const TOLL_CORRIDORS = [
 function estimatedToll(start, end, distanceKm) {
   const exact = TOLL_CORRIDORS.find(x => x[0] === start && x[1] === end);
   if (exact) return exact[2];
-  // Genel tahmin: uzun şehirler arası rotalarda ücretli otoyol kullanımı için
-  // düşük/orta bir motosiklet tahmini. Kullanıcıya "tahmini" olarak gösterilir.
   if (distanceKm < 180) return 0;
   if (distanceKm < 350) return Math.round(distanceKm * 0.18);
   return Math.round(distanceKm * 0.23);
@@ -846,7 +837,6 @@ function getConsumption() {
 }
 
 function getFuelPrice() {
-  // Son yakıt kaydındaki litre fiyatını kullan; yoksa 42 TL/L varsayılan.
   const f = (data.fuel || []).filter(x => Number(x.liters) > 0 && Number(x.cost) > 0).slice(-1)[0];
   return f ? Number(f.cost) / Number(f.liters) : 42;
 }
@@ -912,7 +902,6 @@ function saveRouteExpense() {
   alert('Yolculuk masrafı kaydedildi.');
 }
 
-
 function render() {
   bikeName.textContent = data.bike.name || 'Motorunu ekle';
   bikeInfo.textContent = data.bike.name ? `${data.bike.year || ''} • ${(data.bike.km || 0).toLocaleString('tr-TR')} km` : 'Marka/model ve kilometreni kaydet.';
@@ -962,8 +951,6 @@ function removeMaintenance(index) {
   save();
 }
 
-
-
 render();
 populateCitySelects();
 updateNotificationStatus();
@@ -987,7 +974,6 @@ function startGps() {
     let speed = Number(pos.coords.speed);
     let speedKm = Number.isFinite(speed) && speed >= 0 ? Math.round(speed * 3.6) : 0;
 
-    // speed alanı bazı telefonlarda boş gelebilir; bu durumda 0 gösterilir.
     document.getElementById('currentSpeed').textContent = speedKm;
 
     if (speedKm > sessionMaxSpeed) {
@@ -996,7 +982,7 @@ function startGps() {
 
       if (sessionMaxSpeed > (data.maxSpeed || 0)) {
         data.maxSpeed = sessionMaxSpeed;
-        save(); // en yüksek değer anında kalıcı olarak kaydedilir
+        save();
         recordSpeedHistory(sessionMaxSpeed);
       }
     }
@@ -1086,7 +1072,6 @@ function checkMaintenanceNotifications(force = false) {
 }
 
 setInterval(() => checkMaintenanceNotifications(false), 60 * 60 * 1000);
-
 </script>
 </body>
 </html>
