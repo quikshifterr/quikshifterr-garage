@@ -1,0 +1,9 @@
+{
+  "name":"QUIKSHIFTERR Garage",
+  "short_name":"QS Garage",
+  "start_url":"./index.html",
+  "display":"standalone",
+  "background_color":"#151515",
+  "theme_color":"#111111",
+  "lang":"tr"
+}
