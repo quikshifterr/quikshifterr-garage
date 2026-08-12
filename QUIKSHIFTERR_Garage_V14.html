@@ -1,0 +1,1092 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111111">
+<title>QUIKSHIFTERR Garage V14.0</title>
+
+<!-- Firebase SDKs (Compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<style>
+:root {
+  --bg: #08090a;
+  --panel: #111315;
+  --line: #292d31;
+  --orange: #ff6a00;
+  --orange2: #ff8a2a;
+  --text: #f6f7f8;
+  --muted: #8e949b;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(circle at 50% -10%, #24201c 0, #0b0c0d 32%, #08090a 65%);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.app {
+  max-width: 540px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding-bottom: 90px;
+}
+
+header {
+  background: rgba(8, 9, 10, .92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(255, 255, 255, .07);
+  padding: 20px 18px 14px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand { font-size: 21px; font-weight: 900; }
+.brand .orange-text { color: var(--orange); }
+.brand .white-text { color: #ffffff; }
+.brand .garage-tag {
+  font-size: 11px;
+  color: var(--orange);
+  font-weight: 700;
+  margin-left: 4px;
+  background: rgba(255,106,0,0.15);
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,106,0,0.3);
+}
+
+.subtitle { font-size: 10px; text-transform: uppercase; color: #777d84; margin-top: 2px; }
+
+.user-badge {
+  background: #1c2024;
+  border: 1px solid #2d3238;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--orange);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.user-badge img {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.page { display: none; padding: 18px; }
+.page.active { display: block; }
+
+.hero, .card {
+  background: linear-gradient(145deg, rgba(28, 31, 34, .96), rgba(15, 17, 19, .98));
+  border: 1px solid #2a2e32;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, .28);
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+h1 { font-size: 26px; margin: 4px 0; }
+h2 { font-size: 18px; margin: 0 0 10px 0; }
+.muted { color: var(--muted); font-size: 12px; }
+
+.stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 14px; }
+.stat { background: #101214; border: 1px solid #262a2e; border-radius: 14px; padding: 12px; }
+.stat small { color: var(--muted); font-size: 11px; display: block; }
+.stat strong { display: block; font-size: 17px; margin-top: 4px; }
+
+button {
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, var(--orange2), var(--orange));
+  color: #fff;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+}
+button.secondary { background: #24282c; color: var(--text); }
+button.danger { background: #812d2d; color: #fff; }
+
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.between { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  background: #0c0e10;
+  color: #fff;
+  border: 1px solid #30353a;
+  border-radius: 12px;
+  margin: 6px 0 10px;
+  font-size: 14px;
+}
+
+label { display: block; font-size: 11px; font-weight: 700; color: #a6abb1; text-transform: uppercase; margin-top: 8px; }
+
+.item { padding: 12px 0; border-bottom: 1px solid #2a2e32; }
+.item:last-child { border: 0; }
+
+.empty { text-align: center; color: var(--muted); padding: 20px 4px; }
+
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(540px, 100%);
+  background: rgba(10, 11, 12, .95);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-top: 1px solid #262a2e;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  z-index: 20;
+}
+
+.nav button {
+  background: transparent;
+  color: #8e949b;
+  padding: 6px 2px;
+  font-size: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.nav button.active { color: var(--orange); }
+
+.more-menu-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 90;
+}
+.more-menu-overlay.active { display: block; }
+
+.more-menu {
+  display: none;
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(500px, 92%);
+  background: #14171a;
+  border: 1px solid #2a2e32;
+  border-radius: 20px;
+  padding: 18px;
+  z-index: 100;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.more-menu.active { display: block; }
+
+.menu-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 800;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+}
+
+.more-menu-item {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 12px 16px; background: #1c2024; border: 1px solid #282c30;
+  border-radius: 12px; color: #fff; font-size: 14px; font-weight: 700; margin-bottom: 8px;
+}
+
+.speedometer-box {
+  text-align: center;
+  padding: 20px 10px;
+  background: radial-gradient(circle, #1a1d21 0%, #0d0f11 100%);
+  border-radius: 16px;
+  border: 1px solid #2d3238;
+  margin-bottom: 14px;
+}
+
+.speed-display { font-size: 56px; font-weight: 900; color: var(--orange); line-height: 1; }
+.speed-unit { font-size: 13px; color: var(--muted); text-transform: uppercase; margin-top: 4px; }
+
+.profile-avatar-container { text-align: center; margin-bottom: 14px; }
+.profile-avatar-img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--orange); object-fit: cover; background: #0c0e10; }
+.avatar-presets { display: flex; justify-content: center; gap: 10px; margin-top: 8px; }
+.avatar-preset-item { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2px solid #30353a; object-fit: cover; }
+
+.chat-container { display: flex; flex-direction: column; height: calc(100vh - 220px); min-height: 380px; }
+.chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 12px; background: #0a0b0c; border-radius: 16px; border: 1px solid #23272b; margin-bottom: 10px; }
+.chat-msg { display: flex; gap: 10px; max-width: 85%; }
+.chat-msg.self { align-self: flex-end; flex-direction: row-reverse; }
+.chat-msg.other { align-self: flex-start; }
+.chat-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--orange); }
+.chat-bubble { background: #191c20; border: 1px solid #2c3136; padding: 8px 12px; border-radius: 14px; font-size: 13px; line-height: 1.4; }
+.chat-msg.self .chat-bubble { background: linear-gradient(135deg, rgba(255,138,42,0.2), rgba(255,106,0,0.2)); border-color: rgba(255,106,0,0.4); }
+.chat-user { font-weight: 800; font-size: 11px; color: var(--orange); margin-bottom: 2px; }
+.chat-time { font-size: 9px; color: var(--muted); text-align: right; margin-top: 4px; }
+.chat-input-box { display: flex; gap: 8px; align-items: center; }
+.chat-input-box input { margin: 0; }
+</style>
+
+<style>
+  .page, .card, .hero { min-width: 0; }
+  .stats, .card > div[style*="grid-template-columns"] { min-width: 0; }
+  input, select, button { max-width: 100%; }
+  .stat strong { overflow-wrap: anywhere; }
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <div class="brand">
+        <span class="orange-text">QUİK</span><span class="white-text">SHİFTERR</span>
+        <span class="garage-tag">V14.0</span>
+      </div>
+      <div class="subtitle">Motor bakım • yakıt • gps • rota • sohbet</div>
+    </div>
+    <div class="user-badge" id="userHeaderBadge" onclick="openAuthModal()">
+      <img id="headerAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=rider" alt="User Avatar">
+      <span id="userStatusText">Giriş Yap</span>
+    </div>
+  </header>
+
+  <section id="home" class="page active">
+    <div class="hero">
+      <div class="muted">MOTOSİKLETİM</div>
+      <h1 id="bikeName">Motorunu ekle</h1>
+      <div id="bikeInfo" class="muted">Marka/model ve kilometreni kaydet.</div>
+      <div class="stats">
+        <div class="stat"><small>Bu ay</small><strong id="monthTotal">0 TL</strong></div>
+        <div class="stat"><small>Toplam gider</small><strong id="total">0 TL</strong></div>
+        <div class="stat"><small>Ort. tüketim</small><strong id="avgConsumption">— L/100 km</strong></div>
+        <div class="stat"><small>Max GPS Hız</small><strong id="homeMaxSpeed">0 km/h</strong></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="between">
+        <h2>Yaklaşan Bakımlar</h2>
+        <button onclick="show('maintenance')">Tümü</button>
+      </div>
+      <div id="upcoming"></div>
+    </div>
+    <div class="card">
+      <div class="between">
+        <div>
+          <div class="muted">GÖSTERGE & SÜRÜŞ</div>
+          <h2 style="margin:4px 0">💬 Sürücü Sohbet Alanı</h2>
+          <div class="muted">Diğer motorcularla sohbet et, bilgi paylaş.</div>
+        </div>
+        <button onclick="show('chat')">Sohbet Et</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="between">
+        <div>
+          <div class="muted">HARİTA & SÜRÜŞ</div>
+          <h2 style="margin:4px 0">🗺️ Rota Hesaplama</h2>
+          <div class="muted">Mesafe, süre ve tahmini yakıt maliyeti.</div>
+        </div>
+        <button onclick="show('route')">Aç</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="chat" class="page">
+    <h2>💬 Sürücü Sohbet Alanı</h2>
+    <div class="chat-container">
+      <div class="chat-messages" id="chatMessages">
+        <div class="empty">Sohbet yükleniyor...</div>
+      </div>
+      <div class="chat-input-box">
+        <input id="chatInput" placeholder="Bir mesaj yazın..." onkeypress="handleChatKeyPress(event)">
+        <button onclick="sendChatMessage()" style="padding: 12px 18px;">Gönder</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="route" class="page">
+    <h2>🗺️ Rota & Yolculuk Maliyeti</h2>
+    <div class="card">
+      <div class="muted" style="margin-bottom:10px;">Şehirleri seçin; mesafe, süre, yakıt ve tahmini ücretli yol maliyeti otomatik hesaplanır.</div>
+      <label>Başlangıç Şehri</label>
+      <select id="rStartCity" onchange="updateRoutePreview()"></select>
+      <label>Varış Şehri</label>
+      <select id="rEndCity" onchange="updateRoutePreview()"></select>
+      <button onclick="calculateRoute()" style="width:100%; margin-top:8px;">🚀 Rotayı ve Masrafı Hesapla</button>
+    </div>
+
+    <div class="card" id="routeResultCard" style="display:none;">
+      <h2>Rota Özeti</h2>
+      <div class="stats">
+        <div class="stat"><small>Mesafe</small><strong id="rDistance">0 km</strong></div>
+        <div class="stat"><small>Tahmini Süre</small><strong id="rDuration">0 dk</strong></div>
+        <div class="stat"><small>Tahmini Tüketim</small><strong id="rFuelCons">0 L</strong></div>
+        <div class="stat"><small>Yakıt</small><strong id="rFuelCost">0 TL</strong></div>
+      </div>
+      <div class="stats" style="margin-top:10px;">
+        <div class="stat"><small>Ücretli Yol Tahmini</small><strong id="rTollCost">0 TL</strong></div>
+        <div class="stat"><small>Toplam Tahmini</small><strong id="rTotalCost">0 TL</strong></div>
+      </div>
+      <div class="muted" id="rRouteNote" style="margin-top:12px;"></div>
+      <button class="secondary" onclick="saveRouteExpense()" style="width:100%; margin-top:10px;">💾 Yolculuk Masrafını Kaydet</button>
+    </div>
+  </section>
+
+  <section id="gps" class="page">
+    <h2>📡 GPS Hız & Performans</h2>
+    <div class="speedometer-box">
+      <div class="speed-display" id="currentSpeed">0</div>
+      <div class="speed-unit">KM/H (ANLIK HIZ)</div>
+      <div class="row" style="justify-content:center; margin-top:16px;">
+        <button id="startGpsBtn" onclick="toggleGps()">▶️ GPS Başlat</button>
+        <button class="secondary" onclick="resetGpsSession()">↺ Sıfırla</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Mevcut Sürüş Verileri</h2>
+      <div class="stats">
+        <div class="stat"><small>Anlık Max Hız</small><strong id="sessionMax">0 km/h</strong></div>
+        <div class="stat"><small>Süre</small><strong id="sessionTime">00:00</strong></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="between">
+        <h2>🏁 Kayıtlı En Yüksek Hız</h2>
+        <strong id="savedMaxSpeed" style="color:var(--orange);">0 km/h</strong>
+      </div>
+      <div class="muted">GPS ölçümünde ulaşılan en yüksek hız otomatik kaydedilir.</div>
+      <div id="speedHistoryList" style="margin-top:8px;"></div>
+    </div>
+  </section>
+
+  <section id="fuel" class="page">
+    <h2>⛽ Yakıt Takibi</h2>
+    <div class="card">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div><label>Tarih</label><input id="fDate" type="date"></div>
+        <div><label>KM</label><input id="fKm" type="number"></div>
+        <div><label>Litre</label><input id="fLiters" type="number" step=".01"></div>
+        <div><label>Tutar (TL)</label><input id="fCost" type="number" step=".01"></div>
+      </div>
+      <button onclick="addFuel()" style="width:100%; margin-top:6px;">Yakıtı Kaydet</button>
+    </div>
+    <div class="card"><div id="fuelList"></div></div>
+  </section>
+
+  <section id="maintenance" class="page">
+    <h2>🔧 Bakım & Hatırlatıcı</h2>
+    <div class="card">
+      <div class="between">
+        <div>
+          <h2 style="margin:0;">🔔 Bildirimler</h2>
+          <div class="muted">Bakım tarihi yaklaşınca bildirim göster.</div>
+        </div>
+        <button class="secondary" onclick="requestMaintenanceNotifications()">Bildirimleri Aç</button>
+      </div>
+      <div id="notificationStatus" class="muted" style="margin-top:10px;">Bildirim durumu kontrol ediliyor...</div>
+    </div>
+    <div class="card">
+      <label>Bakım / Parça</label>
+      <input id="mName" placeholder="Örn. Motor yağı">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div><label>Bakım tarihi</label><input id="mDate" type="date"></div>
+        <div><label>Bakım KM</label><input id="mKm" type="number"></div>
+      </div>
+      <button class="secondary" onclick="addMaintenance()" style="width:100%; margin-top:8px;">Bakımı Kaydet</button>
+    </div>
+    <div class="card"><div id="maintenanceList"></div></div>
+  </section>
+
+  <section id="expenses" class="page">
+    <h2>💸 Masraflar</h2>
+    <div class="card">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div>
+          <label>Kategori</label>
+          <select id="eCat">
+            <option>Bakım</option>
+            <option>Parça</option>
+            <option>Yakıt</option>
+            <option>Sigorta</option>
+            <option>Ekipman</option>
+          </select>
+        </div>
+        <div><label>Tutar (TL)</label><input id="eCost" type="number" step=".01"></div>
+      </div>
+      <button onclick="addExpense()" style="width:100%;">Masrafı Kaydet</button>
+    </div>
+    <div class="card"><div id="expenseList"></div></div>
+  </section>
+
+  <section id="bike" class="page">
+    <h2>🏍️ Motorum</h2>
+    <div class="card">
+      <label>Marka / Model</label>
+      <input id="bName" placeholder="KTM Duke 250">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div><label>Model yılı</label><input id="bYear" type="number"></div>
+        <div><label>Güncel KM</label><input id="bKm" type="number"></div>
+      </div>
+      <button onclick="saveBike()" style="width:100%; margin-top:8px;">Motoru Kaydet</button>
+    </div>
+  </section>
+
+  <nav class="nav">
+    <button onclick="show('home')" id="n-home" class="active"><span>⌂</span><span>Ana Sayfa</span></button>
+    <button onclick="show('chat')" id="n-chat"><span>💬</span><span>Sohbet</span></button>
+    <button onclick="show('fuel')" id="n-fuel"><span>⛽</span><span>Yakıt</span></button>
+    <button onclick="show('gps')" id="n-gps"><span>📡</span><span>GPS</span></button>
+    <button onclick="toggleMoreMenu()" id="n-more"><span>☰</span><span>Menü</span></button>
+  </nav>
+
+  <div class="more-menu-overlay" id="moreOverlay" onclick="closeAllModals()"></div>
+
+  <div class="more-menu" id="moreMenu">
+    <div class="menu-title">Tüm Kategoriler & Menü</div>
+    <button class="more-menu-item" onclick="selectMoreNav('home')"><span>⌂</span> <span>Ana Sayfa</span></button>
+    <button class="more-menu-item" onclick="selectMoreNav('chat')"><span>💬</span> <span>Sürücü Sohbet Alanı</span></button>
+    <button class="more-menu-item" onclick="selectMoreNav('route')"><span>🗺️</span> <span>Rota & Mesafe Hesaplama</span></button>
+    <button class="more-menu-item" onclick="selectMoreNav('gps')"><span>📡</span> <span>GPS Hız Ölçer</span></button>
+    <button class="more-menu-item" onclick="selectMoreNav('fuel')"><span>⛽</span> <span>Yakıt Takibi</span></button>
+    <button class="more-menu-item" onclick="selectMoreNav('maintenance')"><span>🔧</span> <span>Bakım & Hatırlatıcı</span></button>
+    <button class="more-menu-item" onclick="selectMoreNav('expenses')"><span>💸</span> <span>Masraflar & Giderler</span></button>
+    <button class="more-menu-item" onclick="selectMoreNav('bike')"><span>🏍️</span> <span>Motor Garajım</span></button>
+  </div>
+
+  <div class="more-menu" id="authModal">
+    <div id="authLoggedOut">
+      <h2>👤 Giriş Yap / Kayıt Ol</h2>
+      <label>E-posta Adresi</label>
+      <input id="authEmail" type="email" placeholder="ornek@email.com">
+      <label>Şifre</label>
+      <input id="authPassword" type="password" placeholder="••••••••">
+      <div class="row" style="margin-top:10px;">
+        <button onclick="handleLogin()" style="flex:1;">Giriş Yap</button>
+        <button class="secondary" onclick="handleRegister()" style="flex:1;">Kayıt Ol</button>
+      </div>
+    </div>
+
+    <div id="authLoggedIn" style="display:none;">
+      <h2>👤 Profilim & Hesabım</h2>
+      <div class="profile-avatar-container">
+        <img id="profileAvatarPreview" class="profile-avatar-img" src="https://api.dicebear.com/7.x/bottts/svg?seed=rider" alt="Avatar">
+        <div class="muted" style="margin-top: 4px; font-size: 11px;">Hazır Avatar Seçin veya Resim Linki Yapıştırın</div>
+        <div class="avatar-presets">
+          <img src="https://api.dicebear.com/7.x/bottts/svg?seed=rider" class="avatar-preset-item" onclick="selectPresetAvatar(this.src)">
+          <img src="https://api.dicebear.com/7.x/bottts/svg?seed=biker" class="avatar-preset-item" onclick="selectPresetAvatar(this.src)">
+          <img src="https://api.dicebear.com/7.x/bottts/svg?seed=ktm" class="avatar-preset-item" onclick="selectPresetAvatar(this.src)">
+          <img src="https://api.dicebear.com/7.x/bottts/svg?seed=speed" class="avatar-preset-item" onclick="selectPresetAvatar(this.src)">
+        </div>
+      </div>
+
+      <label>Profil Resmi URL (İsteğe Bağlı)</label>
+      <input id="profAvatarUrl" placeholder="https://ornek.com/resim.jpg" oninput="updateAvatarPreview(this.value)">
+
+      <label>Ad Soyad</label>
+      <input id="profName" placeholder="Adınız Soyadınız">
+
+      <label>E-posta Adresi</label>
+      <input id="profEmail" type="email">
+
+      <label>Yeni Şifre (Değiştirmek istemiyorsanız boş bırakın)</label>
+      <input id="profNewPassword" type="password" placeholder="En az 6 karakter">
+
+      <button onclick="saveProfile()" style="width:100%; margin-top:10px;">Profil Bilgilerini Güncelle</button>
+      <button class="danger" onclick="handleLogout()" style="width:100%; margin-top:8px;">Çıkış Yap</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBpKCbF2SgCiQ5BT7yGNEgpvMptnG7WMTc",
+  authDomain: "quikshifterr.firebaseapp.com",
+  projectId: "quikshifterr",
+  storageBucket: "quikshifterr.firebasestorage.app",
+  messagingSenderId: "507874811786",
+  appId: "1:507874811786:web:056b74e2df314aeba53273",
+  measurementId: "G-72YWKGTHDR"
+};
+
+// Mapbox Public Access Key (Encoded)
+const MAPBOX_TOKEN = ["pk.eyJ1IjoicXVpa3NoaWZ0ZXJyIiwiYSI6ImNtODFsMTA2bjA4dGIybHNieDdkeTJpdGkifQ", "z194Lz13I85N-sJcWw_J0g"].join('.');
+
+let db = null;
+let currentUser = null;
+
+try {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+} catch(e) { console.log(e); }
+
+const KEY = 'qsGarageV13';
+let data = JSON.parse(localStorage.getItem(KEY) || '{"bike":{},"fuel":[],"expenses":[],"maintenance":[],"maxSpeed":0,"speedHistory":[],"routeHistory":[],"profile":{"name":"","avatar":"https://api.dicebear.com/7.x/bottts/svg?seed=rider"}}');
+if (!Array.isArray(data.speedHistory)) data.speedHistory = [];
+if (!Array.isArray(data.routeHistory)) data.routeHistory = [];
+
+function save() {
+  localStorage.setItem(KEY, JSON.stringify(data));
+  if (db && currentUser) {
+    db.collection("garages").doc(currentUser.uid).set(data).catch(err => console.error(err));
+  }
+  render();
+}
+
+function money(n) { return Number(n || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL'; }
+
+function closeAllModals() {
+  document.querySelectorAll('.more-menu').forEach(m => m.classList.remove('active'));
+  document.getElementById('moreOverlay').classList.remove('active');
+}
+
+function toggleMoreMenu() {
+  const menu = document.getElementById('moreMenu');
+  const overlay = document.getElementById('moreOverlay');
+  const isActive = menu.classList.contains('active');
+  closeAllModals();
+  if (!isActive) { menu.classList.add('active'); overlay.classList.add('active'); }
+}
+
+function openAuthModal() {
+  closeAllModals();
+  document.getElementById('authModal').classList.add('active');
+  document.getElementById('moreOverlay').classList.add('active');
+}
+
+if (window.firebase && firebase.auth) {
+  firebase.auth().onAuthStateChanged(user => {
+    currentUser = user;
+    if (user) {
+      document.getElementById('authLoggedOut').style.display = 'none';
+      document.getElementById('authLoggedIn').style.display = 'block';
+
+      if (!data.profile) data.profile = { name: '', avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=rider' };
+      
+      document.getElementById('profEmail').value = user.email || '';
+      document.getElementById('profName').value = user.displayName || data.profile.name || '';
+      document.getElementById('profAvatarUrl').value = user.photoURL || data.profile.avatar || '';
+      
+      updateAvatarPreview(user.photoURL || data.profile.avatar);
+      updateUserHeader(user.displayName || data.profile.name, user.email, user.photoURL || data.profile.avatar);
+
+      if (db) {
+        db.collection("garages").doc(user.uid).get().then(doc => {
+          if (doc.exists) {
+            data = doc.data();
+            if (!data.profile) data.profile = { name: '', avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=rider' };
+            localStorage.setItem(KEY, JSON.stringify(data));
+            updateUserHeader(user.displayName || data.profile.name, user.email, user.photoURL || data.profile.avatar);
+            render();
+          }
+        });
+      }
+    } else {
+      document.getElementById('userStatusText').textContent = "Giriş Yap";
+      document.getElementById('headerAvatar').src = "https://api.dicebear.com/7.x/bottts/svg?seed=rider";
+      document.getElementById('authLoggedOut').style.display = 'block';
+      document.getElementById('authLoggedIn').style.display = 'none';
+    }
+  });
+}
+
+function updateUserHeader(name, email, avatar) {
+  let displayName = name || (email ? email.split('@')[0] : "Giriş Yapıldı");
+  document.getElementById('userStatusText').textContent = displayName;
+  if (avatar) document.getElementById('headerAvatar').src = avatar;
+}
+
+function selectPresetAvatar(url) {
+  document.getElementById('profAvatarUrl').value = url;
+  updateAvatarPreview(url);
+}
+
+function updateAvatarPreview(url) {
+  let finalUrl = url.trim() || 'https://api.dicebear.com/7.x/bottts/svg?seed=rider';
+  document.getElementById('profileAvatarPreview').src = finalUrl;
+}
+
+function translateAuthError(code) {
+  switch (code) {
+    case 'auth/invalid-email': return 'Geçerli bir e-posta adresi giriniz.';
+    case 'auth/user-not-found': return 'Bu e-posta adresiyle kayıtlı bir hesap bulunamadı.';
+    case 'auth/wrong-password':
+    case 'auth/invalid-credential': return 'E-posta adresi veya şifre hatalı.';
+    case 'auth/email-already-in-use': return 'Bu e-posta adresi zaten kullanılıyor.';
+    case 'auth/weak-password': return 'Şifreniz en az 6 karakter olmalıdır.';
+    default: return 'Bir hata oluştu. Lütfen tekrar deneyiniz.';
+  }
+}
+
+function handleLogin() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  if (!email || !password) return alert('Lütfen bilgilerinizi doldurun.');
+  firebase.auth().signInWithEmailAndPassword(email, password)
+    .then(() => closeAllModals())
+    .catch(e => alert(translateAuthError(e.code)));
+}
+
+function handleRegister() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  if (!email || !password) return alert('Lütfen bilgilerinizi doldurun.');
+  firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then(() => { save(); closeAllModals(); })
+    .catch(e => alert(translateAuthError(e.code)));
+}
+
+function saveProfile() {
+  if (!currentUser) return;
+  const newName = document.getElementById('profName').value.trim();
+  const newAvatar = document.getElementById('profAvatarUrl').value.trim() || 'https://api.dicebear.com/7.x/bottts/svg?seed=rider';
+
+  currentUser.updateProfile({ displayName: newName, photoURL: newAvatar }).then(() => {
+    data.profile = { name: newName, avatar: newAvatar };
+    save();
+    updateUserHeader(newName, currentUser.email, newAvatar);
+    alert('Profil güncellendi.');
+    closeAllModals();
+  }).catch(err => alert('Hata: ' + err.message));
+}
+
+function handleLogout() { firebase.auth().signOut().then(() => closeAllModals()); }
+
+function selectMoreNav(id) { closeAllModals(); show(id); }
+
+function show(id) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(x => x.classList.remove('active'));
+  let btn = document.getElementById('n-' + id);
+  if (btn) btn.classList.add('active');
+  else document.getElementById('n-more').classList.add('active');
+
+  if (id === 'chat') initChatListener();
+  render();
+}
+
+let chatUnsubscribe = null;
+function initChatListener() {
+  if (!db || chatUnsubscribe) return;
+  const chatMessages = document.getElementById('chatMessages');
+
+  chatUnsubscribe = db.collection('chats').orderBy('timestamp', 'asc').limitToLast(50)
+    .onSnapshot(snapshot => {
+      chatMessages.innerHTML = '';
+      if (snapshot.empty) {
+        chatMessages.innerHTML = '<div class="empty">Henüz mesaj yok. İlk yazan sen ol!</div>';
+        return;
+      }
+      snapshot.forEach(doc => {
+        const msg = doc.data();
+        const isSelf = currentUser && currentUser.uid === msg.uid;
+        const msgTime = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '';
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `chat-msg ${isSelf ? 'self' : 'other'}`;
+        msgDiv.innerHTML = `
+          <img src="${msg.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=rider'}" class="chat-avatar">
+          <div class="chat-bubble">
+            <div class="chat-user">${msg.userName || 'Sürücü'}</div>
+            <div>${escapeHtml(msg.text)}</div>
+            <div class="chat-time">${msgTime}</div>
+          </div>
+        `;
+        chatMessages.appendChild(msgDiv);
+      });
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+}
+
+function sendChatMessage() {
+  if (!currentUser) { alert('Sohbet için giriş yapmalısınız.'); openAuthModal(); return; }
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  db.collection('chats').add({
+    uid: currentUser.uid,
+    userName: currentUser.displayName || currentUser.email.split('@')[0],
+    avatar: currentUser.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=rider',
+    text: text,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => { input.value = ''; });
+}
+
+function handleChatKeyPress(e) { if (e.key === 'Enter') sendChatMessage(); }
+function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m])); }
+
+function saveBike() {
+  data.bike = { name: bName.value.trim(), year: bYear.value, km: Number(bKm.value || 0) };
+  save(); show('home');
+}
+
+function addFuel() {
+  let liters = +fLiters.value, cost = +fCost.value, km = +fKm.value;
+  if (!liters || !cost || !km) return alert('Tüm alanları doldurun.');
+  data.fuel.push({ date: fDate.value || new Date().toISOString().slice(0, 10), km, liters, cost });
+  data.expenses.unshift({ cat: 'Yakıt', cost, note: `${liters} L`, date: new Date().toISOString().slice(0, 10) });
+  data.bike.km = km;
+  save(); fLiters.value = fCost.value = fKm.value = '';
+}
+
+function addExpense() {
+  if (!+eCost.value) return;
+  data.expenses.unshift({ cat: eCat.value, cost: +eCost.value, date: new Date().toISOString().slice(0, 10) });
+  save(); eCost.value = '';
+}
+
+function addMaintenance() {
+  if (!mName.value || !mDate.value) return;
+  data.maintenance.push({ name: mName.value.trim(), date: mDate.value, km: +mKm.value || 0 });
+  save(); mName.value = mDate.value = mKm.value = '';
+}
+
+const TURKEY_CITIES = [
+  "Adana","Adıyaman","Afyonkarahisar","Ağrı","Aksaray","Amasya","Ankara","Antalya","Ardahan","Artvin",
+  "Aydın","Balıkesir","Bartın","Batman","Bayburt","Bilecik","Bingöl","Bitlis","Bolu","Burdur","Bursa",
+  "Çanakkale","Çankırı","Çorum","Denizli","Diyarbakır","Düzce","Edirne","Elazığ","Erzincan","Erzurum",
+  "Eskişehir","Gaziantep","Giresun","Gümüşhane","Hakkari","Hatay","Iğdır","Isparta","İstanbul","İzmir",
+  "Kahramanmaraş","Karabük","Karaman","Kars","Kastamonu","Kayseri","Kilis","Kırıkkale","Kırklareli",
+  "Kırşehir","Kocaeli","Konya","Kütahya","Malatya","Manisa","Mardin","Mersin","Muğla","Muş","Nevşehir",
+  "Niğde","Ordu","Osmaniye","Rize","Sakarya","Samsun","Siirt","Sinop","Sivas","Şanlıurfa","Şırnak",
+  "Tekirdağ","Tokat","Trabzon","Tunceli","Uşak","Van","Yalova","Yozgat","Zonguldak"
+];
+
+function populateCitySelects() {
+  const a = document.getElementById('rStartCity');
+  const b = document.getElementById('rEndCity');
+  if (!a || !b) return;
+  const opts = '<option value="">Şehir seçin</option>' + TURKEY_CITIES.map(c => `<option value="${c}">${c}</option>`).join('');
+  a.innerHTML = opts;
+  b.innerHTML = opts;
+  const preferredStart = (data.lastRoute && data.lastRoute.start) || '';
+  const preferredEnd = (data.lastRoute && data.lastRoute.end) || '';
+  if (preferredStart) a.value = preferredStart;
+  if (preferredEnd) b.value = preferredEnd;
+}
+
+function updateRoutePreview() {
+  const s = document.getElementById('rStartCity').value;
+  const e = document.getElementById('rEndCity').value;
+  if (s && e && s === e) alert('Başlangıç ve varış şehri aynı olamaz.');
+}
+
+async function geocode(query) {
+  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query + ', Türkiye')}.json?access_token=${MAPBOX_TOKEN}&country=tr&language=tr&types=place,region`;
+  const res = await fetch(url);
+  const json = await res.json();
+  return (json.features && json.features.length > 0) ? json.features[0].center : null;
+}
+
+/*
+  Mapbox route sonucu gerçek mesafe/süreyi verir.
+  Mapbox Directions cevabı ücretli yol ücretini standart olarak TL cinsinden vermediği için
+  burada şehirler arası motosiklet için tahmini ücretli yol modeli kullanılır.
+  Kullanıcının gerçek rotasında ücretli yol yoksa 0 TL gösterilir; ana otoyol koridorlarında
+  muhafazakâr bir tahmin uygulanır.
+*/
+const TOLL_CORRIDORS = [
+  ["İstanbul","Ankara",220],["Ankara","İstanbul",220],
+  ["İstanbul","İzmir",360],["İzmir","İstanbul",360],
+  ["İstanbul","Bursa",120],["Bursa","İstanbul",120],
+  ["İstanbul","Kocaeli",45],["Kocaeli","İstanbul",45],
+  ["İstanbul","Sakarya",80],["Sakarya","İstanbul",80],
+  ["İstanbul","Tekirdağ",70],["Tekirdağ","İstanbul",70],
+  ["İstanbul","Edirne",100],["Edirne","İstanbul",100],
+  ["Ankara","Bursa",240],["Bursa","Ankara",240],
+  ["Ankara","İzmir",220],["İzmir","Ankara",220],
+  ["İzmir","Manisa",45],["Manisa","İzmir",45],
+  ["İzmir","Aydın",55],["Aydın","İzmir",55]
+];
+
+function estimatedToll(start, end, distanceKm) {
+  const exact = TOLL_CORRIDORS.find(x => x[0] === start && x[1] === end);
+  if (exact) return exact[2];
+  // Genel tahmin: uzun şehirler arası rotalarda ücretli otoyol kullanımı için
+  // düşük/orta bir motosiklet tahmini. Kullanıcıya "tahmini" olarak gösterilir.
+  if (distanceKm < 180) return 0;
+  if (distanceKm < 350) return Math.round(distanceKm * 0.18);
+  return Math.round(distanceKm * 0.23);
+}
+
+function getConsumption() {
+  const fuel = data.fuel || [];
+  if (fuel.length >= 2) {
+    const sorted = [...fuel].sort((a,b) => Number(a.km) - Number(b.km));
+    let totalLiters = 0, totalKm = 0;
+    for (let i = 1; i < sorted.length; i++) {
+      const dk = Number(sorted[i].km) - Number(sorted[i-1].km);
+      if (dk > 0) { totalKm += dk; totalLiters += Number(sorted[i].liters || 0); }
+    }
+    if (totalKm > 0 && totalLiters > 0) return totalLiters / totalKm * 100;
+  }
+  return 4.5;
+}
+
+function getFuelPrice() {
+  // Son yakıt kaydındaki litre fiyatını kullan; yoksa 42 TL/L varsayılan.
+  const f = (data.fuel || []).filter(x => Number(x.liters) > 0 && Number(x.cost) > 0).slice(-1)[0];
+  return f ? Number(f.cost) / Number(f.liters) : 42;
+}
+
+let lastCalculatedRoute = null;
+
+async function calculateRoute() {
+  const start = document.getElementById('rStartCity').value;
+  const end = document.getElementById('rEndCity').value;
+  if (!start || !end) return alert('Başlangıç ve varış şehirlerini seçin.');
+  if (start === end) return alert('Başlangıç ve varış şehri aynı olamaz.');
+
+  try {
+    const [startCoords, endCoords] = await Promise.all([geocode(start), geocode(end)]);
+    if (!startCoords || !endCoords) return alert('Şehir konumları bulunamadı.');
+
+    const routeUrl = `https://api.mapbox.com/directions/v5/mapbox/driving/${startCoords[0]},${startCoords[1]};${endCoords[0]},${endCoords[1]}?access_token=${MAPBOX_TOKEN}&overview=false`;
+    const res = await fetch(routeUrl);
+    const routeData = await res.json();
+    if (!routeData.routes || !routeData.routes.length) return alert('Bu iki şehir için rota bulunamadı.');
+
+    const route = routeData.routes[0];
+    const distanceKm = route.distance / 1000;
+    const durationMin = Math.round(route.duration / 60);
+    const consumption = getConsumption();
+    const fuelLiters = distanceKm * consumption / 100;
+    const fuelPrice = getFuelPrice();
+    const fuelCost = fuelLiters * fuelPrice;
+    const tollCost = estimatedToll(start, end, distanceKm);
+    const totalCost = fuelCost + tollCost;
+
+    lastCalculatedRoute = {start,end,distanceKm,durationMin,consumption,fuelLiters,fuelPrice,fuelCost,tollCost,totalCost};
+
+    document.getElementById('rDistance').textContent = distanceKm.toFixed(1) + ' km';
+    document.getElementById('rDuration').textContent = durationMin + ' dk';
+    document.getElementById('rFuelCons').textContent = fuelLiters.toFixed(2) + ' L';
+    document.getElementById('rFuelCost').textContent = money(fuelCost);
+    document.getElementById('rTollCost').textContent = money(tollCost);
+    document.getElementById('rTotalCost').textContent = money(totalCost);
+    document.getElementById('rRouteNote').textContent =
+      `Yakıt hesabı ${consumption.toFixed(1)} L/100 km ve ${fuelPrice.toFixed(2)} TL/L üzerinden. Ücretli yol tutarı tahminidir.`;
+    document.getElementById('routeResultCard').style.display = 'block';
+
+    data.lastRoute = {start, end};
+    save();
+  } catch (e) {
+    console.error(e);
+    alert('Rota hesaplama hatası. İnternet bağlantınızı ve konum erişimini kontrol edin.');
+  }
+}
+
+function saveRouteExpense() {
+  if (!lastCalculatedRoute) return alert('Önce rota hesaplayın.');
+  const r = lastCalculatedRoute;
+  data.expenses.unshift({
+    cat: 'Yolculuk',
+    cost: Number(r.totalCost.toFixed(2)),
+    note: `${r.start} → ${r.end} • ${r.distanceKm.toFixed(1)} km • Yakıt ${r.fuelCost.toFixed(2)} TL • Ücretli yol ${r.tollCost.toFixed(2)} TL`,
+    date: new Date().toISOString().slice(0,10)
+  });
+  data.routeHistory.unshift({...r, date: new Date().toISOString().slice(0,10)});
+  save();
+  alert('Yolculuk masrafı kaydedildi.');
+}
+
+
+function render() {
+  bikeName.textContent = data.bike.name || 'Motorunu ekle';
+  bikeInfo.textContent = data.bike.name ? `${data.bike.year || ''} • ${(data.bike.km || 0).toLocaleString('tr-TR')} km` : 'Marka/model ve kilometreni kaydet.';
+
+  const total = (data.expenses || []).reduce((a, x) => a + Number(x.cost || 0), 0);
+  document.getElementById('total').textContent = money(total);
+  document.getElementById('homeMaxSpeed').textContent = (data.maxSpeed || 0) + ' km/h';
+  document.getElementById('savedMaxSpeed').textContent = (data.maxSpeed || 0) + ' km/h';
+
+  const avg = getConsumption();
+  document.getElementById('avgConsumption').textContent = (data.fuel && data.fuel.length >= 2) ? avg.toFixed(1) + ' L/100 km' : '— L/100 km';
+
+  upcoming.innerHTML = data.maintenance.length
+    ? data.maintenance.slice(-5).reverse().map(x => `<div class="item between"><span>🔧 ${x.name}<br><small class="muted">${x.date}${x.km ? ' • ' + x.km.toLocaleString('tr-TR') + ' km' : ''}</small></span></div>`).join('')
+    : '<div class="empty">Bakım kaydı yok.</div>';
+
+  maintenanceList.innerHTML = data.maintenance.length
+    ? data.maintenance.slice().reverse().map((x,i) => {
+        const days = Math.ceil((new Date(x.date + 'T23:59:59') - new Date()) / 86400000);
+        const status = days < 0 ? '🔴 Geçti' : days <= 7 ? '🟠 Yaklaşıyor' : '🟢 Planlandı';
+        return `<div class="item between">
+          <span><b>${x.name}</b><br><small class="muted">${x.date}${x.km ? ' • ' + x.km.toLocaleString('tr-TR') + ' km' : ''} • ${status}</small></span>
+          <button class="danger" style="padding:7px 9px;" onclick="removeMaintenance(${data.maintenance.length-1-i})">Sil</button>
+        </div>`;
+      }).join('')
+    : '<div class="empty">Bakım kaydı yok.</div>';
+
+  fuelList.innerHTML = data.fuel.length
+    ? data.fuel.slice().reverse().map(x => `<div class="item between"><span>⛽ ${x.liters} L • ${x.km.toLocaleString('tr-TR')} km</span><b>${money(x.cost)}</b></div>`).join('')
+    : '<div class="empty">Yakıt kaydı yok.</div>';
+
+  expenseList.innerHTML = data.expenses.length
+    ? data.expenses.map(x => `<div class="item between"><span>${x.cat}<br><small class="muted">${x.note || x.date || ''}</small></span><b>${money(x.cost)}</b></div>`).join('')
+    : '<div class="empty">Masraf kaydı yok.</div>';
+
+  const history = data.speedHistory || [];
+  document.getElementById('speedHistoryList').innerHTML = history.length
+    ? history.slice(0,8).map(x => `<div class="item between"><span>🏁 ${x.speed} km/h<br><small class="muted">${x.date} • ${x.time}</small></span></div>`).join('')
+    : '<div class="empty">Henüz GPS hız kaydı yok.</div>';
+
+  updateNotificationStatus();
+}
+
+function removeMaintenance(index) {
+  if (!confirm('Bu bakım kaydı silinsin mi?')) return;
+  data.maintenance.splice(index, 1);
+  save();
+}
+
+
+
+render();
+populateCitySelects();
+updateNotificationStatus();
+checkMaintenanceNotifications(false);
+
+let watchId = null, gpsActive = false, sessionMaxSpeed = 0;
+let gpsStartedAt = null, gpsTimer = null;
+
+function toggleGps() { gpsActive ? stopGps() : startGps(); }
+
+function startGps() {
+  if (!navigator.geolocation) return alert('Bu cihazda GPS desteği bulunamadı.');
+  gpsActive = true;
+  gpsStartedAt = Date.now();
+  sessionMaxSpeed = 0;
+  document.getElementById('startGpsBtn').textContent = "⏹️ GPS Durdur";
+  clearInterval(gpsTimer);
+  gpsTimer = setInterval(updateSessionTime, 1000);
+
+  watchId = navigator.geolocation.watchPosition(pos => {
+    let speed = Number(pos.coords.speed);
+    let speedKm = Number.isFinite(speed) && speed >= 0 ? Math.round(speed * 3.6) : 0;
+
+    // speed alanı bazı telefonlarda boş gelebilir; bu durumda 0 gösterilir.
+    document.getElementById('currentSpeed').textContent = speedKm;
+
+    if (speedKm > sessionMaxSpeed) {
+      sessionMaxSpeed = speedKm;
+      document.getElementById('sessionMax').textContent = sessionMaxSpeed + " km/h";
+
+      if (sessionMaxSpeed > (data.maxSpeed || 0)) {
+        data.maxSpeed = sessionMaxSpeed;
+        save(); // en yüksek değer anında kalıcı olarak kaydedilir
+        recordSpeedHistory(sessionMaxSpeed);
+      }
+    }
+  }, err => {
+    alert('GPS konumu alınamadı. Konum iznini açıp tekrar deneyin.');
+    stopGps();
+  }, { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 });
+}
+
+function recordSpeedHistory(speed) {
+  if (speed <= 0) return;
+  if (!Array.isArray(data.speedHistory)) data.speedHistory = [];
+  data.speedHistory.unshift({
+    speed,
+    date: new Date().toLocaleDateString('tr-TR'),
+    time: new Date().toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'})
+  });
+  data.speedHistory = data.speedHistory.slice(0, 20);
+  localStorage.setItem(KEY, JSON.stringify(data));
+  render();
+}
+
+function stopGps() {
+  if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+  watchId = null;
+  gpsActive = false;
+  clearInterval(gpsTimer);
+  gpsTimer = null;
+  document.getElementById('startGpsBtn').textContent = "▶️ GPS Başlat";
+}
+
+function updateSessionTime() {
+  if (!gpsStartedAt) return;
+  const sec = Math.floor((Date.now() - gpsStartedAt) / 1000);
+  const mm = String(Math.floor(sec / 60)).padStart(2,'0');
+  const ss = String(sec % 60).padStart(2,'0');
+  document.getElementById('sessionTime').textContent = `${mm}:${ss}`;
+}
+
+function resetGpsSession() {
+  stopGps();
+  sessionMaxSpeed = 0;
+  gpsStartedAt = null;
+  document.getElementById('currentSpeed').textContent = "0";
+  document.getElementById('sessionMax').textContent = "0 km/h";
+  document.getElementById('sessionTime').textContent = "00:00";
+}
+
+function requestMaintenanceNotifications() {
+  if (!('Notification' in window)) {
+    return alert('Bu tarayıcı bildirim desteği sunmuyor. Uygulamayı ana ekrana ekleyerek tekrar deneyin.');
+  }
+  Notification.requestPermission().then(permission => {
+    updateNotificationStatus();
+    if (permission === 'granted') {
+      checkMaintenanceNotifications(true);
+      alert('Bakım bildirimleri açıldı.');
+    }
+  });
+}
+
+function updateNotificationStatus() {
+  const el = document.getElementById('notificationStatus');
+  if (!el) return;
+  if (!('Notification' in window)) el.textContent = 'Bu tarayıcı bildirim desteği sunmuyor.';
+  else if (Notification.permission === 'granted') el.textContent = '🟢 Bildirimler açık';
+  else if (Notification.permission === 'denied') el.textContent = '🔴 Bildirimler kapalı — tarayıcı ayarlarından izin verin.';
+  else el.textContent = '🟠 Bildirim izni bekleniyor.';
+}
+
+function checkMaintenanceNotifications(force = false) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const today = new Date();
+  const todayKey = today.toISOString().slice(0,10);
+  (data.maintenance || []).forEach(m => {
+    const diff = Math.ceil((new Date(m.date + 'T23:59:59') - today) / 86400000);
+    if (diff >= 0 && diff <= 3) {
+      const key = `${m.name}_${m.date}`;
+      if (force || localStorage.getItem('qs_notified_' + key) !== todayKey) {
+        new Notification('QUIKSHIFTERR Bakım Hatırlatıcı', {
+          body: `${m.name} bakımı ${diff === 0 ? 'bugün' : diff + ' gün içinde'} yapılmalı.`
+        });
+        localStorage.setItem('qs_notified_' + key, todayKey);
+      }
+    }
+  });
+}
+
+setInterval(() => checkMaintenanceNotifications(false), 60 * 60 * 1000);
+
+</script>
+</body>
+</html>
